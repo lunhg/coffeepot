@@ -6,7 +6,6 @@ WebsocketRails::EventMap.describe do
 
   namespace :compile do
     subscribe :coffee, :to => EditorController, :with_method => :compile_coffee
-    subscribe :stop, :to => EditorController, :with_method => :compile_stop
   end
 
 end

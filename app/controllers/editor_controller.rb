@@ -21,12 +21,6 @@ class EditorController < WebsocketRails::BaseController
     trigger_success message  
   end
 
-  def compile_stop
-    puts "stopping"
-    hash = {stop: message.playing}
-    trigger_success hash
-  end
-
   private
 
   # Decompress a chunk of code already compressed with
