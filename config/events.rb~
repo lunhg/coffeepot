@@ -1,0 +1,7 @@
+WebsocketRails::EventMap.describe do
+  namespace :initialize do
+
+    subscribe :audio, :to => EditorController, :with_method => :initialize_audio
+
+  end
+end

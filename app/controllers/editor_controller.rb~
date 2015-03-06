@@ -1,0 +1,102 @@
+class EditorController < WebsocketRails::BaseController
+  
+  #before_action :set_json, :only => [:on_request_init, :on_request_compile, :on_response_play, :on_response_stop, :on_response_reset]
+
+  def initialize_session
+    p "INitializing Websocket"
+    # perform application setup here
+    #controller_store[:is_running] = false
+    #controller_store[:commands_history] = []
+    #data_store[:codes_history] = []
+  end
+
+  def on_request_init
+    p "Initializing webaudio"
+    set_json
+    send_message :on_response_init, @json
+  end
+
+  private 
+
+  def set_json
+    @json = Hash.new
+
+    # initialize Runtime
+    if message[:init] && message[:init] == true
+      buffer = message[:bufferSize] || 1024
+      channels = message[:channels] || 2
+      @json[:message] = ["initializing wavepot-runtime"]
+    # compile runtime
+    elsif message[:compile] == true && message[:code]
+      # a necessary fix
+      fixed = _fix_compressed_ message[:code]
+      
+      # properly code
+      # store a value to verify if app is running when editor
+      # changes, i.e., if isnt running, wheater editor is changing
+      # will not be compiled
+      begin
+        @json[:callback] =  _run_(fixed)
+        @json[:message] = ["OK"]
+        @json[:error] = !json[:callback]
+      rescue => e
+        @json[:error] = e
+      end
+    elsif message[:play]
+      @json[:status] = 1
+      @json[:message] = ["OK"]
+      @json[:error] = false
+    #stop runtime
+    elsif message[:stop]
+      @json[:status] = 0
+      @json[:message] = ["Stopped"]
+      @json[:error] = false
+    # reset runtime
+    elsif message[:reset]
+      @json[:status] = - 1
+      @json[:message] = ["OK"]
+      @json[:error] = false
+    end
+    json
+  end
+
+  # I don't know why in this version, received code has many \n
+  # concatenated with compressed code
+  def _fix_compressed_(code)
+    code.gsub!(/[\n]+/, "")
+  end
+
+  # Decompress a chunk of code already compressed with
+  # with compress_for method.
+  # Compression occurs when we highlight code and generate a link for
+  # it
+  # usage:: ```
+  # #=> In some controller
+  # @code = params[:c]
+  # #=> In view
+  # <%= build_script decompress_for(@code) %>
+  # ```
+  def decompress_for(compressed_string)
+    hex = [compressed_string].pack("H*")
+    string = LZMA.decompress hex
+    string
+  end
+
+  #############################################
+  # Coffeescript codes to process live-coding # 
+  #############################################
+
+  def _run_(compressed_code)
+    code = decompress_for compressed_code
+    js = CoffeeScript.compile code, :bare => true, :map => true
+    logger.debug js
+    js
+  end
+
+  def _stop_
+    code = "dsp = (t) -> 0"
+    logger.debug js
+    CoffeeScript.compile code, :bare => true
+  end
+
+end

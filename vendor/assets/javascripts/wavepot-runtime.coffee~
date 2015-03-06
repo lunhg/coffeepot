@@ -1,0 +1,57 @@
+class WavepotRuntime
+        constructor: (context, buffersize=1024, channels=2) ->
+                @code = '' 
+                @scope = new Object()
+                @time = 0 
+                contextclass = (window.AudioContext or window.webkitAudioContext)
+                @context = context || new contextclass()
+                @playing = false 
+                @bufferSize = buffersize
+
+                @scriptnode = @context.createScriptProcessor(@bufferSize, 0)
+                        
+        	@scriptnode.onaudioprocess = (e) ->
+                        out = e.outputBuffer.getChannelData(0)
+                        f = 0
+                        t = 0
+                        td = 1.0 / @context.sampleRate
+                        if @scope && @scope.dsp && @playing
+                                t = this.time
+                                for out in out
+                                        f = @scope.dsp(t) 
+                                        out = f 
+                                        t += td
+                                        @time = t 
+                        else
+                                out = f for out in out
+                                
+        	@scriptnode.connect(@context.destination)
+
+        
+                             
+WavepotRuntime::compile = (code) ->
+        console.log('WavepotRuntime: compile', code) 
+        @code = code 
+        newscope = new Object() 
+        try
+                _fn = """var sampleRate=#{@context.sampleRate}
+
+                #{code}
+
+                this.dsp = dsp"""
+                fn = new Function(_fn) 
+                r = f.call(newscope) 
+                console.log(r) 
+        catch e
+                console.error('WavepotRuntime: compilation error', e) 
+        if newscope && typeof(newscope.dsp) is 'function'
+                @scope = newscope 
+                return true 
+        else
+                return false
+
+WavepotRuntime::play = -> @playing = true
+WavepotRuntime::stop = -> @playing = false 
+WavepotRuntime::reset = -> @time = 0
+
+window.WavepotRuntime = WavepotRuntime

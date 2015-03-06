@@ -1,0 +1,25 @@
+# Place all the behaviors and hooks related to the matching controller here.
+# All this logic will automatically be available in application.js.
+# You can use CoffeeScript in this file: http://coffeescript.org/
+
+# this is helper code to check arguments in audio user code                   
+class SocketWVRuntime
+
+        # define app integration with websocket
+        constructor: (@editor, audio_options) ->
+                @dispatcher = new WebSocketRails "#{window.location.host}/websocket"
+                
+        init: (audio_options) ->
+                @dispatcher.trigger('initialize.audio', audio_options);
+
+                @dispatcher.bind 'initialize.success', (message) =>
+                        console.log "creating runtime:"
+                        console.log "bufferSize: #{message.bufferSize}"
+                        console.log "channels: #{message.channels}"
+                        @runtime = new WavepotRuntime(null, message.bufferSize, message.channels)
+                        if @runtime then console.log 'successfully created runtime'
+
+$(document).ready ->
+
+        runtime = new SocketWVRuntime()
+        runtime.init bufferSize: 1024, channels:2

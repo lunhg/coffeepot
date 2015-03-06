@@ -1,0 +1,9 @@
+<nav id="app">
+  <%= coffeepot_tags %>
+
+  <button id="play">PLAY</button>
+  <button id="stop">STOP</button>
+
+  <%= create_ace "# This is a simple dsp function\n#That returns a white noise\n(t) -> Math.random() * 2 - 1", :id => "coffee_editor" %>
+
+</nav>
