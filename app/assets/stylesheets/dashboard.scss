@@ -3,7 +3,7 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 .highlight pre { background-color: #000000 }
 .highlight pre > span:before {
-  font-size: .9em;
+  font-size: .12em;
   color: #aaa;
   content: counter(linenumbers);
   counter-increment: linenumbers;
@@ -85,7 +85,7 @@
 #coffee_editor{
   position:absolute; 
   top: 7.15%;
-  right: 21%;
-  bottom: 8.113%;
+  right: 10%;
+  bottom: 0%;
   left: 0%;
 }
