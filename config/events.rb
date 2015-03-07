@@ -8,4 +8,9 @@ WebsocketRails::EventMap.describe do
     subscribe :coffee, :to => EditorController, :with_method => :compile_coffee
   end
 
+  namespace :record do
+    subscribe :request, :to => EditorController, :with_method => :record_request
+    subscribe :blob, :to => EditorController, :with_method => :record_blob
+  end
+
 end

@@ -33,7 +33,9 @@ module DashboardHelper
                             "worker-coffee", 
                             "theme-#{opt[:theme]}", 
                             "lzma_worker", 
-                            "lzma2string")
+                            "lzma2string",
+                            "recorder",
+                            "recorderWorker")
   end
 
 end

@@ -21,6 +21,24 @@ class EditorController < WebsocketRails::BaseController
     trigger_success message  
   end
 
+  def record_request
+    puts message
+    if message["record"]
+      hash = {:workerPath => '/assets/recorderWorker.js', :record =>true , :bufferSize => 1024}
+      trigger_success hash
+    else
+      hash = {:record => falseb}
+      trigger_failure hash
+    end
+  end
+
+  def record_blob
+    puts message
+    trigger_success message
+  end
+
+  
+
   private
 
   # Decompress a chunk of code already compressed with
@@ -41,7 +59,6 @@ class EditorController < WebsocketRails::BaseController
 
   def _compile(code)
     js = CoffeeScript.compile code, :bare => true, :map => true
-    logger.debug js
     js
   end
 

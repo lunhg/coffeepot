@@ -1,13 +1,13 @@
 // quick implementation of the wavepot script playback engine
 
-function WavepotRuntime(context) {
+function WavepotRuntime(context, bufferSize, channels) {
 	this.code = '';
 	this.scope = {};
 	this.time = 0;
 	this.context = context || new AudioContext();
 	this.playing = false;
-	this.bufferSize = 1024;
-	this.scriptnode = this.context.createScriptProcessor(this.bufferSize, 0, 1);	
+	this.bufferSize = bufferSize || 1024;
+	this.scriptnode = this.context.createScriptProcessor(this.bufferSize, 0, channels || 2);	
 }
 
 WavepotRuntime.prototype.init = function(callback){

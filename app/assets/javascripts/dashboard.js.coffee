@@ -33,15 +33,40 @@ $(document).ready ->
                         onf = (message) -> console.log message              
                         dispatcher.trigger 'compile.coffee', {code: result}, ons, onf
 
-        $('#play').click ->
-                 if runtime and not runtime.playing
-                       play()
-                                
-        $('#stop').click ->
-                runtime.stop()
+        isRecording = false
+        rec = null
+        
+        $('#record').click ->
                 
-        $('#reset').click ->
-                runtime.runtime.reset()
+                ons = (message)->
+                        console.log "Starting record"
+                        rec = new Recorder runtime.scriptnode,
+                                workerPath: message.workerPath
+                                bufferSize: message.bufferSize
+                        rec.record()
+                        isRecording = message.record
+                                
+                onf = (message) ->
+                        console.log "Stopping record"
+                        rec.stop()
+                        rec.exportWAV (blob) ->
+                                console.log blob
+                                rec.clear()
+                                isRecording = message.record
+                                window.location.href = (window.URL || window.webkitURL).createObjectURL(blob)
+                                        
+                                                            
+                                        
+                dispatcher.trigger 'record.request', {record: not isRecording}, ons, onf
+                
+
+                        
+        $('#play').click -> if runtime and not runtime.playing then play()
+                                
+        $('#stop').click -> runtime.stop()
+                
+                
+        $('#reset').click -> runtime.reset()
                 
         window.editor.getSession().on 'change', (e) ->
                 setTimeout ->
