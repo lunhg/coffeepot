@@ -35,13 +35,13 @@ tri = (f, a, t) ->
   sig * a
 
 # A square wave
-sqr = (f, t, a) -> 
+sqr = (f, a, t) -> 
   sig = (t*f % 1/f < 1/f/2) * 2 - 1
   sig * a
 
 # A pulse square wave
 # w -> width of boundaries
-pulse = (f, t, w, a) ->
+pulse = (f, a, w, t) ->
   sig = (t*f % 1/f < 1/f/2*w) * 2 - 1
   sig * a
 
@@ -53,9 +53,6 @@ noise = (a)->
 # In final you must return this function
 # but inside, you can do anything, but must
 # return a number or array
-dsp = (t) -> 
-  sig1 = sin(440, 0.71, t)
-  sig2 = saw(330, 0.71, t)
-  [sig1, sig2]"""
+dsp = (t) ->  pulse ramp(tri(10, 0.71, t), sqr(5, 1, t), t), sin(0.00002, 1, t), saw(440, 0.71, t), t"""
   end
 end
