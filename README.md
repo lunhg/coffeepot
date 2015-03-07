@@ -33,7 +33,7 @@ $ curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | bas
 - You will need these following lines on your ~/.bashrc:
 
 ~~~{.bash}
-export NVM_DIR="/home/guilherme/.nvm"
+export NVM_DIR="/home/<somename>/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"  # This loads nvm
 ~~~
 
