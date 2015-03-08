@@ -72,7 +72,7 @@ $ rails s
 
 in webrowser (suport to chrome and firefox) go to `localhost:3000` and make some sounds with coffeescript like in wavepot:
 
-![screen1](screeshots/screen1.png)
+![screen1](https://raw.githubusercontent.com/jahpd/coffeepot/master/screenshots/screen1.png)
 
 - Play: will send a message to server, requesting compile the script; you must write a dsp function:
 
