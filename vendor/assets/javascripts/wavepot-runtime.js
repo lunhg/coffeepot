@@ -13,19 +13,27 @@ function WavepotRuntime(context, bufferSize, channels) {
 WavepotRuntime.prototype.init = function(callback){
         var _this = this;
         this.scriptnode.onaudioprocess = function(e) {
-        	var out = e.outputBuffer.getChannelData(0);
+        	var out = [e.outputBuffer.getChannelData(0), e.outputBuffer.getChannelData(1)];
         	var f = 0, t = 0, td = 1.0 / this.context.sampleRate;
         	if (_this.scope && _this.scope.dsp && _this.playing) {
         		t = _this.time;
-        		for (var i = 0; i < out.length; i++) {
+        		for (var i = 0; i < out[0].length; i++) {
         			f = _this.scope.dsp(t);
-        			out[i] = f;
+			        if(typeof(f) === 'number'){
+			            out[0][i] =  f
+        			    out[1][i] =  f
+				}
+			        else if (typeof(f) === 'object'){
+				    out[0][i] =  f[0]
+        			    out[1][i] =  f[1]
+				}
         			t += td;
         		}
         		_this.time = t;
         	} else {
-        		for (var i = 0; i < out.length; i++) {
-        			out[i] = f;
+        		for (var i = 0; i < out[0].length; i++) {
+        			out[0][i] = f[0] | f
+        			out[1][i] = f[1] | f
         		}
         	}
         }

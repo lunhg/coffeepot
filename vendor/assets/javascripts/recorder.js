@@ -23,7 +23,7 @@ DEALINGS IN THE SOFTWARE.
 
   var Recorder = function(source, cfg){
     var config = cfg || {};
-    var bufferLen = config.bufferLen || 4096;
+    var bufferLen = config.bufferLen || 1024;
     this.context = source.context;
     if(!this.context.createScriptProcessor){
        this.node = this.context.createJavaScriptNode(bufferLen, 2, 2);
