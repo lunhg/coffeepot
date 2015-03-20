@@ -7,14 +7,22 @@ function WavepotRuntime(context, bufferSize, channels) {
 	this.context = context || new AudioContext();
 	this.playing = false;
 	this.bufferSize = bufferSize || 1024;
-	this.scriptnode = this.context.createScriptProcessor(this.bufferSize, 0, channels || 2);	
+	this.scriptnode = this.context.createScriptProcessor(this.bufferSize, 0, channels || 2);
+        this.worker = new Worker('assets/recorderWorker.js');
+        this.worker.postMessage({
+          command: 'init',
+          config: {
+            sampleRate: this.context.sampleRate
+          }
+        });
+        this.recording = false;
 }
 
 WavepotRuntime.prototype.init = function(callback){
         var _this = this;
         this.scriptnode.onaudioprocess = function(e) {
         	var out = [e.outputBuffer.getChannelData(0), e.outputBuffer.getChannelData(1)];
-        	var f = 0, t = 0, td = 1.0 / this.context.sampleRate;
+        	var f = 0, t = 0, td = 1.0 / _this.context.sampleRate;
         	if (_this.scope && _this.scope.dsp && _this.playing) {
         		t = _this.time;
         		for (var i = 0; i < out[0].length; i++) {
@@ -36,8 +44,14 @@ WavepotRuntime.prototype.init = function(callback){
         			out[1][i] = f[1] | f
         		}
         	}
+	        if (_this.recording){
+		    _this.worker.postMessage({
+			command: 'record',
+			buffer: out
+		    });
+		}
         }
-	this.scriptnode.connect(this.context.destination);
+	this.scriptnode.connect(_this.context.destination);
 }
 
 WavepotRuntime.prototype.compile = function(code) {
@@ -75,3 +89,30 @@ WavepotRuntime.prototype.reset = function() {
 	// console.log('WavepotRuntime: reset');
 	this.time = 0;
 }
+
+WavepotRuntime.prototype.record = function(b){
+        this.recording = b;
+}
+
+WavepotRuntime.prototype.clear = function(){
+        this.worker.postMessage({ command: 'clear' });
+}
+
+WavepotRuntime.prototype.exportWAV = function(cb){
+      type =  'audio/wav';
+      if (!cb) throw new Error('Callback not set');
+      this.worker.postMessage({
+        command: 'exportWAV',
+        type: type
+      });
+      this.worker.onmessage = function(e){
+        var blob = e.data;
+        cb(blob);
+      }
+}
+
+WavepotRuntime.prototype.download = function(blob){
+  window.location.href = (window.URL || window.webkitURL).createObjectURL(blob)
+}
+
+

@@ -32,32 +32,6 @@ $(document).ready ->
                                 runtime.play()                   
                         onf = (message) -> console.log message              
                         dispatcher.trigger 'compile.coffee', {code: result}, ons, onf
-
-        isRecording = false
-        rec = null
-        
-        $('#record').click ->
-                
-                ons = (message)->
-                        console.log "Starting record"
-                        rec = new Recorder runtime.scriptnode,
-                                workerPath: message.workerPath
-                                bufferSize: message.bufferSize
-                        rec.record()
-                        isRecording = message.record
-                                
-                onf = (message) ->
-                        console.log "Stopping record"
-                        rec.stop()
-                        rec.exportWAV (blob) ->
-                                console.log blob
-                                rec.clear()
-                                isRecording = message.record
-                                window.location.href = (window.URL || window.webkitURL).createObjectURL(blob)
-                                        
-                                                            
-                                        
-                dispatcher.trigger 'record.request', {record: not isRecording}, ons, onf
                 
 
                         
@@ -67,6 +41,22 @@ $(document).ready ->
                 
                 
         $('#reset').click -> runtime.reset()
+
+        $('#record').click ->
+                
+                ons = (message)->
+                        console.log "Starting record: #{message}"
+                        runtime.record true
+                                
+                onf = (message) ->
+                        console.log "Stopping record: #{message}"
+                        runtime.record false
+                        runtime.exportWAV (blob) ->
+                                console.log blob
+                                runtime.clear()
+                                runtime.download blob
+    
+                dispatcher.trigger 'record.request', {record: not runtime.recording}, ons, onf
                 
         window.editor.getSession().on 'change', (e) ->
                 setTimeout ->
