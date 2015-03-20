@@ -32,29 +32,42 @@ $(document).ready ->
                                 runtime.play()                   
                         onf = (message) -> console.log message              
                         dispatcher.trigger 'compile.coffee', {code: result}, ons, onf
-                
 
+        $a = $("<a>Push play and then record</a>")
+        $("#controls").append $a
+        
+        $('#play').click ->
+                if runtime and not runtime.playing
+                        $a.html('playing')
+                        play()
                         
-        $('#play').click -> if runtime and not runtime.playing then play()
-                                
-        $('#stop').click -> runtime.stop()
+                           
+        $('#stop').click ->
+                $a.html('stopped')
+                runtime.stop()
                 
                 
         $('#reset').click -> runtime.reset()
 
+        $a.click ->
+                this.attr("href", "")
+                
         $('#record').click ->
                 
                 ons = (message)->
                         console.log "Starting record: #{message}"
+                        $a.html "Recording..."
                         runtime.record true
-                                
-                onf = (message) ->
-                        console.log "Stopping record: #{message}"
-                        runtime.record false
-                        runtime.exportWAV (blob) ->
-                                console.log blob
-                                runtime.clear()
-                                runtime.download blob
+
+                 onf = (message) ->
+                         console.log "Stopping record: #{message}"
+                         $a.html "...encoding..."
+                         runtime.record false
+                         runtime.exportWAV (blob) ->
+                                 console.log blob
+                                 runtime.stop()
+                                 runtime.clear()
+                                 $a.html("click me to download").attr("download", "#{Date.now()}.wav").attr "href", window.URL.createObjectURL(blob)
     
                 dispatcher.trigger 'record.request', {record: not runtime.recording}, ons, onf
                 

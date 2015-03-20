@@ -111,8 +111,4 @@ WavepotRuntime.prototype.exportWAV = function(cb){
       }
 }
 
-WavepotRuntime.prototype.download = function(blob){
-  window.location.href = (window.URL || window.webkitURL).createObjectURL(blob)
-}
-
 
