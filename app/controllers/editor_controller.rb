@@ -16,7 +16,9 @@ class EditorController < WebsocketRails::BaseController
   def compile_coffee
     message["code"].gsub!(/[\n ]+/, "")
     c = _decompress_for message["code"]
-    message["code"] = _compile c
+    code = _compile c
+    puts code
+    message["code"] = _compress_for code
     puts message
     trigger_success message  
   end
@@ -24,7 +26,7 @@ class EditorController < WebsocketRails::BaseController
   def record_request
     puts message
     if message["record"]
-      hash = {:workerPath => '/assets/recorderWorker.js', :record =>true , :bufferSize => 1024}
+      hash = {:workerPath => 'assets/recorderWorker.js', :record =>true , :bufferSize => 1024}
       trigger_success hash
     else
       hash = {:record => falseb}
@@ -36,8 +38,6 @@ class EditorController < WebsocketRails::BaseController
     puts message
     trigger_success message
   end
-
-  
 
   private
 
@@ -55,6 +55,12 @@ class EditorController < WebsocketRails::BaseController
     hex = [compressed_string].pack("H*")
     string = LZMA.decompress hex
     string
+  end
+
+  def _compress_for(uncompressed_string)
+    hex = LZMA.compress uncompressed_string
+    hex = hex.unpack "H*"
+    hex[0]
   end
 
   def _compile(code)

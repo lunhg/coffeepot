@@ -25,6 +25,10 @@ sqr = (f, a, t) -> ((t*f % 1/f < 1/f/2) * 2 - 1) * a
 pulse = (f, a, w, t) -> ((t*f % 1/f < 1/f/2*w) * 2 - 1) * a
 # A white noise signal
 noise = (a)->  (Math.random() * 2 - 1) * a
+# Envelope
+envelope = (t, head, measure, decay, release) ->
+  ts = t / head % measure;
+  Math.exp -ts * decay * Math.exp(ts * release)
 
 # You can return a simple number (monoaural)
 # Or you can a return an 2 element array (stereo 2 channels)
